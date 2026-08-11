@@ -1,0 +1,103 @@
+# Colab Workflow
+
+This repo uses a Colab-first execution loop with local Codex review.
+
+## Sync Loop
+
+1. Run the relevant labeled cells in Colab.
+2. Save the notebook and any generated outputs.
+3. Sync through git:
+   - In Colab, pull before continuing: `!git pull`
+   - After local Codex edits are pushed, pull again in Colab.
+4. Locally, Codex inspects the pulled notebook outputs, checkpoint files, and exports.
+5. Codex updates notebook text/code as needed.
+6. For major edits, Codex runs static dry-run checks, commits, pushes, and reports the commit hash.
+
+## Notebook Run Order
+
+After every runtime reset, run the foundation cells first:
+
+1. `FOUNDATION 1: Run Controls`
+2. `FOUNDATION 2: Colab/Repo Setup And Paths`
+3. `FOUNDATION 3: Shared Checkpoint Helpers`
+4. `FOUNDATION 4: Imports And CoursePackage Loading`
+
+Then run only the labeled stage needed, using the notebook's Run Map.
+
+## Runtime Policy
+
+Use CPU for:
+
+- Q1 package audit
+- Q2 graph construction/reconciliation
+- Q3 network analysis
+- Q4 parser validation
+- Q5 sparse retrieval
+- Q6 dense/FAISS retrieval, unless Colab-specific behavior suggests otherwise
+- Q10/Q11 scoring tables
+- Q12 submission/reproducibility cells
+
+Use GPU for Qwen model stages:
+
+- `Q4B / STAGE A: GPU Decomposition Run`
+- `Q8B / STAGE B: GPU Rerank + RICR Run`
+- Q9 ablations that use the reranker
+- `Q10A: Answer Formatting And GPU Answer Run`
+
+Run exactly one expensive model stage at a time. Do not keep multiple Qwen models resident in GPU memory. After a model stage finishes, save checkpoints, then restart or clear GPU memory before loading the next model.
+
+## Stage Flags
+
+Change stage flags manually in:
+
+`FOUNDATION 1: Run Controls`
+
+For example, for Q4 decomposition:
+
+```python
+RUN_DECOMPOSITION_STAGE = True
+RUN_RERANK_AND_RICR_STAGE = False
+RUN_ANSWER_STAGE = False
+RUN_ABLATIONS = False
+QUESTION_LIMIT = 2
+```
+
+Keep `QUESTION_LIMIT = 2` for smoke tests. Increase gradually before setting `QUESTION_LIMIT = None` for required final runs.
+
+## Outputs And Checkpoints
+
+Prefer structured output files over relying only on visible notebook output.
+
+Important locations:
+
+- `WORK_ROOT / "exports"` for CSV/JSON tables used in written answers
+- `WORK_ROOT / "figures"` for plots
+- `WORK_ROOT / "cache" / <dataset> / "decompositions.jsonl"`
+- `WORK_ROOT / "cache" / <dataset> / "ricr_traces.jsonl"`
+- `WORK_ROOT / "cache" / <dataset> / "answers.jsonl"`
+- `WORK_ROOT / "submission"` for final deliverables
+
+If `WORK_ROOT` is under `/content`, download or commit important files before the runtime disconnects. If `WORK_ROOT` is under Google Drive, files persist there.
+
+## Static Dry Run Before Commits
+
+For major notebook edits, run:
+
+```bash
+python3 tools/static_notebook_check.py
+python3 -m json.tool Panini_Course_Project.ipynb >/tmp/panini_notebook_json_check.json
+git diff --check
+```
+
+The checker verifies notebook JSON, code-cell syntax, run-map labels, the `STATUS` helper, and that saved notebook outputs were not accidentally wiped.
+
+## Codex Commit Habit
+
+For major edits, Codex should:
+
+1. Make the edit.
+2. Run static dry-run checks.
+3. Commit with a clear message.
+4. Push to `main`.
+5. Report the commit hash and next Colab action.
+
