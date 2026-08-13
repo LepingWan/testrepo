@@ -40,6 +40,10 @@ After every runtime reset, run the foundation cells first:
 
 Then run only the labeled stage needed, using the notebook's Run Map.
 
+For Q8, run `Q8 RUN CONTROL` after `Q8A` and before `Q8B / STAGE B`.
+That local control cell flips the stage flags to reranker/RICR mode, keeps
+Drive durability enabled, and avoids scrolling back to `FOUNDATION 1`.
+
 ## Runtime Policy
 
 Use CPU for:
@@ -115,6 +119,8 @@ and falls back to BM25 for generated queries without supplied embeddings.
 `Q8B / STAGE B` should print one heartbeat per dataset and question. If the
 only visible output is model loading, it is still before the RICR loop; once
 RICR starts, look for `Q8B: RICR start`, `Q8B: RICR done`, or `Q8B: RICR failed`.
+Q8B also requires `decompositions.jsonl` from Q4B in `WORK_ROOT / "cache"`.
+If those files are missing, run Q4B first.
 
 ## Static Dry Run Before Commits
 
