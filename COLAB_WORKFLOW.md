@@ -103,6 +103,10 @@ queries may not exist in `QueryEmbeddingStore`. The notebook's Q7 reranking
 helper therefore uses the requested dense/dual backend when an embedding exists
 and falls back to BM25 for generated queries without supplied embeddings.
 
+`Q8B / STAGE B` should print one heartbeat per dataset and question. If the
+only visible output is model loading, it is still before the RICR loop; once
+RICR starts, look for `Q8B: RICR start`, `Q8B: RICR done`, or `Q8B: RICR failed`.
+
 ## Static Dry Run Before Commits
 
 For major notebook edits, run:
