@@ -13,6 +13,22 @@ This repo uses a Colab-first execution loop with local Codex review.
 5. Codex updates notebook text/code as needed.
 6. For major edits, Codex runs static dry-run checks, commits, pushes, and reports the commit hash.
 
+## Versioned Student Code In Colab
+
+Opening `Panini_Course_Project.ipynb` from GitHub in Colab does not automatically
+clone the surrounding `testrepo` files into `/content`. The notebook therefore
+clones or pulls the lightweight team repo at `https://github.com/LepingWan/testrepo.git`
+inside `FOUNDATION 2` when `Path.cwd() / "student_code"` is missing. That clone
+is only used as the versioned source for files such as `student_code/ricr.py`
+and `student_code/test_student_ricr.py`; the public PANINI package is still
+cloned separately from `https://github.com/YigitTurali/panini-course-project.git`.
+
+After Codex pushes changes to `student_code`, rerun `FOUNDATION 2` in Colab so
+it copies the committed file into:
+
+- `/content/panini-course-project-work/student_code/ricr.py`
+- `/content/panini-course-project/panini_course/ricr.py`
+
 ## Notebook Run Order
 
 After every runtime reset, run the foundation cells first:
@@ -100,4 +116,3 @@ For major edits, Codex should:
 3. Commit with a clear message.
 4. Push to `main`.
 5. Report the commit hash and next Colab action.
-
