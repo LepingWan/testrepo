@@ -93,7 +93,16 @@ Important locations:
 - `WORK_ROOT / "cache" / <dataset> / "answers.jsonl"`
 - `WORK_ROOT / "submission"` for final deliverables
 
-If `WORK_ROOT` is under `/content`, download or commit important files before the runtime disconnects. If `WORK_ROOT` is under Google Drive, files persist there.
+For long Colab runs, keep `MOUNT_DRIVE_IN_COLAB = True` and
+`REQUIRE_DURABLE_WORK_ROOT = True` in `FOUNDATION 1`. Then `FOUNDATION 2`
+mounts Google Drive and sets `WORK_ROOT` to:
+
+`/content/drive/MyDrive/panini-course-project-work`
+
+If Drive authorization fails, the notebook stops before expensive stages write
+wipeable checkpoints. For a disposable smoke run only, you can temporarily set
+`REQUIRE_DURABLE_WORK_ROOT = False`; if `WORK_ROOT` is under `/content`,
+download or commit important files before the runtime disconnects.
 
 ## Dynamic RICR Queries
 
