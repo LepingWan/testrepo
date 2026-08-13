@@ -95,6 +95,14 @@ Important locations:
 
 If `WORK_ROOT` is under `/content`, download or commit important files before the runtime disconnects. If `WORK_ROOT` is under Google Drive, files persist there.
 
+## Dynamic RICR Queries
+
+The supplied dense query embeddings only cover fixed public benchmark queries.
+RICR creates new subqueries after entity substitution, so those generated
+queries may not exist in `QueryEmbeddingStore`. The notebook's Q7 reranking
+helper therefore uses the requested dense/dual backend when an embedding exists
+and falls back to BM25 for generated queries without supplied embeddings.
+
 ## Static Dry Run Before Commits
 
 For major notebook edits, run:
