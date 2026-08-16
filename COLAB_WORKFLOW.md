@@ -108,6 +108,27 @@ wipeable checkpoints. For a disposable smoke run only, you can temporarily set
 `REQUIRE_DURABLE_WORK_ROOT = False`; if `WORK_ROOT` is under `/content`,
 download or commit important files before the runtime disconnects.
 
+## Sync Drive Work Outputs Into Git
+
+The Colab Drive path `/content/drive/MyDrive/panini-course-project-work` exists
+only inside Colab. To snapshot those durable outputs into this repo, run from an
+authenticated `testrepo` clone in Colab after Drive is mounted:
+
+```bash
+python tools/sync_colab_work.py \
+  --source /content/drive/MyDrive/panini-course-project-work \
+  --dest panini-course-project-work \
+  --commit --push
+```
+
+For an in-progress long run, it is safe to sync periodically. JSONL files are
+copied defensively: if a file is being appended at the exact moment of sync, the
+destination snapshot drops an incomplete trailing JSONL row while leaving the
+Drive source untouched.
+
+Before committing very large outputs, check the script warnings. GitHub rejects
+individual files above 100 MB.
+
 ## Dynamic RICR Queries
 
 The supplied dense query embeddings only cover fixed public benchmark queries.
